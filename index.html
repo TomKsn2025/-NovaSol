@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaSol</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Prompt',sans-serif;}
+body{background:#f0f2f5;min-height:100vh;}
+
+/* Top Bar */
+.top-bar{
+  background:linear-gradient(135deg,#6c3fc4 0%,#4caf8a 100%);
+  padding:16px 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+  box-shadow:0 2px 12px rgba(108,63,196,.25);
+}
+.top-bar h1{color:#fff;font-size:24px;font-weight:600;letter-spacing:.3px;}
+.admin-btn{
+  background:rgba(255,255,255,.18);
+  border:1.5px solid rgba(255,255,255,.45);
+  color:#fff;padding:8px 20px;
+  border-radius:24px;cursor:pointer;
+  font-size:14px;font-family:'Prompt',sans-serif;
+  transition:.2s;display:flex;align-items:center;gap:6px;
+}
+.admin-btn:hover{background:rgba(255,255,255,.32);}
+
+/* Main */
+.main{padding:28px 32px;max-width:1400px;margin:0 auto;}
+
+/* Admin Panel */
+.admin-panel{
+  background:#fff;border-radius:16px;
+  margin-bottom:24px;
+  box-shadow:0 4px 16px rgba(0,0,0,.08);
+  overflow:hidden;display:none;
+}
+.admin-panel.show{display:block;}
+.admin-header{
+  background:linear-gradient(135deg,#6c3fc4,#4caf8a);
+  padding:14px 22px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.admin-header .title{color:#fff;font-size:15px;font-weight:500;display:flex;align-items:center;gap:10px;}
+.admin-header .badge{background:rgba(255,255,255,.25);font-size:11px;padding:3px 10px;border-radius:12px;}
+.admin-header .close-btn{
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);
+  color:#fff;padding:5px 16px;border-radius:14px;
+  cursor:pointer;font-size:13px;font-family:'Prompt',sans-serif;
+}
+.admin-list{padding:18px;}
+.admin-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 14px;border:1px solid #eee;
+  border-radius:12px;margin-bottom:10px;
+  transition:.15s;
+}
+.admin-item:hover{border-color:#d1c4e9;background:#faf8ff;}
+.admin-item img{width:40px;height:40px;object-fit:contain;border-radius:8px;background:#f5f5f5;padding:4px;}
+.admin-item .info{flex:1;min-width:0;}
+.admin-item .info .name{font-size:14px;font-weight:500;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-item .info .url{font-size:11px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-item .acts{display:flex;gap:8px;flex-shrink:0;}
+.act-btn{
+  border:1px solid #ddd;background:#fafafa;
+  border-radius:8px;padding:5px 14px;
+  font-size:13px;cursor:pointer;
+  font-family:'Prompt',sans-serif;transition:.15s;
+}
+.act-btn:hover{background:#f0f0f0;}
+.act-btn.del{border-color:#ffcdd2;color:#c62828;}
+.act-btn.del:hover{background:#fff5f5;}
+.add-new-btn{
+  width:100%;background:#f7f4ff;color:#6c3fc4;
+  border:2px dashed #c5b3e6;border-radius:12px;
+  padding:13px;font-size:15px;
+  font-family:'Prompt',sans-serif;cursor:pointer;
+  margin-top:6px;transition:.2s;
+}
+.add-new-btn:hover{background:#ede8ff;}
+
+/* Card Grid */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:18px;
+}
+.card{
+  background:#fff;border-radius:16px;
+  padding:28px 20px;text-align:center;
+  box-shadow:0 2px 10px rgba(0,0,0,.07);
+  transition:.25s;border:1.5px solid transparent;
+  display:flex;flex-direction:column;align-items:center;
+}
+.card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 12px 28px rgba(108,63,196,.15);
+  border-color:#c5b3e6;
+}
+.card .icon-wrap{
+  width:80px;height:80px;border-radius:18px;
+  background:linear-gradient(135deg,#f3efff,#e8f5ee);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;overflow:hidden;
+}
+.card .icon-wrap img{width:60px;height:60px;object-fit:contain;}
+.card h3{color:#333;font-size:15px;font-weight:500;line-height:1.5;margin-bottom:8px;}
+.card p{color:#888;font-size:13px;line-height:1.7;flex:1;margin-bottom:16px;}
+.card a{
+  display:inline-block;
+  background:linear-gradient(135deg,#6c3fc4,#4caf8a);
+  color:#fff;font-size:14px;
+  padding:9px 26px;border-radius:24px;
+  text-decoration:none;font-family:'Prompt',sans-serif;
+  transition:.2s;
+}
+.card a:hover{opacity:.88;letter-spacing:.5px;}
+
+/* Loading skeleton */
+.skeleton{
+  background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite;
+  border-radius:12px;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* Password Modal */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.5);z-index:200;
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.overlay.show{display:flex;}
+.modal-box{
+  background:#fff;border-radius:20px;
+  padding:32px;width:320px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+.modal-box .lock-icon{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#f3efff,#e8f5ee);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;font-size:24px;
+}
+.modal-box h2{font-size:18px;font-weight:600;color:#333;margin-bottom:6px;}
+.modal-box p{font-size:13px;color:#888;margin-bottom:18px;}
+.modal-box input{
+  width:100%;border:1.5px solid #e0e0e0;border-radius:10px;
+  padding:11px 16px;font-size:16px;
+  font-family:'Prompt',sans-serif;text-align:center;
+  letter-spacing:6px;outline:none;margin-bottom:14px;
+  transition:.2s;
+}
+.modal-box input:focus{border-color:#6c3fc4;box-shadow:0 0 0 3px rgba(108,63,196,.12);}
+.err-msg{color:#c62828;font-size:13px;margin:-8px 0 12px;display:none;}
+.modal-actions{display:flex;gap:10px;}
+.btn-primary{
+  flex:1;background:linear-gradient(135deg,#6c3fc4,#4caf8a);
+  color:#fff;border:none;border-radius:10px;
+  padding:11px;font-size:15px;
+  font-family:'Prompt',sans-serif;cursor:pointer;transition:.2s;
+}
+.btn-primary:hover{opacity:.88;}
+.btn-cancel{
+  flex:1;background:#f5f5f5;color:#666;
+  border:none;border-radius:10px;padding:11px;
+  font-size:15px;font-family:'Prompt',sans-serif;cursor:pointer;
+}
+.btn-cancel:hover{background:#eee;}
+
+/* Edit Modal */
+.edit-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.5);z-index:300;
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.edit-overlay.show{display:flex;}
+.edit-box{
+  background:#fff;border-radius:20px;
+  padding:28px;width:380px;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+.edit-box h2{font-size:17px;font-weight:600;color:#333;margin-bottom:20px;}
+.field-label{font-size:12px;color:#888;margin-bottom:4px;}
+.edit-box input{
+  width:100%;border:1.5px solid #e0e0e0;
+  border-radius:10px;padding:10px 14px;
+  font-size:14px;font-family:'Prompt',sans-serif;
+  outline:none;margin-bottom:14px;transition:.2s;
+}
+.edit-box input:focus{border-color:#6c3fc4;box-shadow:0 0 0 3px rgba(108,63,196,.1);}
+.img-preview{
+  width:64px;height:64px;border-radius:12px;
+  background:#f5f5f5;object-fit:contain;
+  margin:0 auto 14px;display:block;border:1px solid #eee;
+}
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:#333;color:#fff;padding:12px 22px;
+  border-radius:12px;font-size:14px;font-family:'Prompt',sans-serif;
+  opacity:0;transition:.3s;pointer-events:none;
+}
+.toast.show{opacity:1;}
+
+@media(max-width:600px){
+  .top-bar{padding:14px 16px;}
+  .top-bar h1{font-size:16px;}
+  .main{padding:16px;}
+  .grid{grid-template-columns:1fr 1fr;gap:12px;}
+  .card{padding:18px 12px;}
+  .edit-box{width:calc(100vw - 32px);}
+}
+
+/* สไตล์พื้นฐานสำหรับ Top Bar */
+.top-bar {
+  display: flex;
+  justify-content: space-between; /* แยกฝั่งซ้าย (แบรนด์) และขวา (ปุ่ม) */
+  align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+  padding: 10px 20px;
+  background-color: #ffffff; /* หรือสีที่คุณต้องการ */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* เพิ่มเงาเล็กน้อย */
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* จัดกลุ่มโลโก้และชื่อ */
+.brand-wrapper {
+  display: flex;
+  align-items: center; /* จัดกึ่งกลางแนวตั้ง */
+}
+
+/* ปรับขนาดโลโก้ */
+.nav-logo {
+  height: 40px; /* ปรับขนาดความสูงตามต้องการ */
+  width: auto; /* ให้ความกว้างปรับตามสัดส่วน */
+  margin-right: 15px; /* ระยะห่างระหว่างโลโก้กับชื่อ */
+}
+
+/* ปรับสไตล์ชื่อ หจก. */
+.top-bar h1 {
+  font-size: 1.2rem; /* ขนาดตัวอักษรพอเหมาะ */
+  margin: 0; /* เอา margin เดิมออก */
+  color: #333; /* สีตัวอักษร */
+  font-weight: 600;
+  white-space: nowrap; /* ป้องกันชื่อขึ้นบรรทัดใหม่ */
+}
+
+/* ปรับสไตล์ปุ่ม ตั้งค่า */
+.admin-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* ระยะห่างระหว่างไอคอนกับข้อความ */
+  padding: 8px 16px;
+  background-color: #f0f0f0; /* สีพื้นหลังปุ่มแบบอ่อน */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-btn:hover {
+  background-color: #e0e0e0;
+  border-color: #bbb;
+}
+
+</style>
+</head>
+<body>
+
+<!-- <div class="top-bar">
+  <h1>ห้างหุ้นส่วนจำกัด โนวาโซล</h1>
+  <button class="admin-btn" onclick="showPassModal()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+    ตั้งค่า
+  </button>
+</div> -->
+
+<div class="top-bar">
+  <div class="brand-wrapper">
+    <img src="https://i.postimg.cc/FHGkmGKB/NOVASOL-1/logo.png" alt="NOVASOL Logo" class="nav-logo">
+    <h1>ห้างหุ้นส่วนจำกัด โนวาโซล</h1>
+  </div>
+  
+  <button class="admin-btn" onclick="showPassModal()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/>
+    </svg>
+    ตั้งค่า
+  </button>
+</div>
+
+<div class="main">
+  <!-- Admin Panel -->
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-header">
+      <div class="title">
+        ⚙ จัดการเมนู
+        <span class="badge">Admin</span>
+      </div>
+      <button class="close-btn" onclick="closeAdmin()">✕ ปิด</button>
+    </div>
+    <div class="admin-list" id="adminList"></div>
+  </div>
+
+  <!-- Card Grid -->
+  <div class="grid" id="cardGrid">
+    <!-- skeleton loading -->
+    <? for(var i=0;i<6;i++){ ?>
+    <div class="card"><div class="skeleton" style="width:80px;height:80px;border-radius:18px;margin:0 auto 14px;"></div><div class="skeleton" style="height:16px;border-radius:6px;margin-bottom:8px;"></div><div class="skeleton" style="height:12px;border-radius:6px;margin-bottom:6px;"></div><div class="skeleton" style="height:12px;border-radius:6px;width:70%;margin:0 auto 16px;"></div><div class="skeleton" style="height:38px;border-radius:24px;width:120px;margin:0 auto;"></div></div>
+    <? } ?>
+  </div>
+</div>
+
+<!-- Password Modal -->
+<div class="overlay" id="passOverlay">
+  <div class="modal-box">
+    <div class="lock-icon">🔐</div>
+    <h2>เข้าสู่ระบบ Admin</h2>
+    <p>กรุณากรอกรหัสผ่านเพื่อจัดการเมนู</p>
+    <input type="password" id="passInput" placeholder="••••" onkeydown="if(event.key==='Enter')checkPass()">
+    <p class="err-msg" id="passErr">รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่</p>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="checkPass()">เข้าสู่ระบบ</button>
+      <button class="btn-cancel" onclick="closePassModal()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="edit-overlay" id="editOverlay">
+  <div class="edit-box">
+    <h2 id="editTitle">เพิ่มเมนูใหม่</h2>
+    <p class="field-label">ชื่อเมนู</p>
+    <input type="text" id="fTitle" placeholder="เช่น ข้อมูลข้าราชการครู">
+    <p class="field-label">คำอธิบาย</p>
+    <input type="text" id="fDesc" placeholder="คำอธิบายสั้นๆ">
+    <p class="field-label">URL รูปภาพ</p>
+    <input type="text" id="fImg" placeholder="https://..." oninput="updatePreview()">
+    <img id="imgPreview" class="img-preview" src="" alt="preview" onerror="this.style.opacity='.3'">
+    <p class="field-label">URL ลิงก์ปลายทาง</p>
+    <input type="text" id="fLink" placeholder="https://script.google.com/...">
+    <p class="field-label">ข้อความบนปุ่ม</p>
+    <input type="text" id="fBtn" placeholder="เช่น ดูข้อมูล / เข้าใช้งาน">
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="saveItem()">💾 บันทึก</button>
+      <button class="btn-cancel" onclick="closeEditModal()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+let items = [];
+let editIdx = -1;
+let isAdmin = false;
+let _adminPass = '';
+
+google.script.run
+  .withSuccessHandler(function(data){
+    items = data;
+    renderCards();
+  })
+  .withFailureHandler(function(e){
+    showToast('เกิดข้อผิดพลาด: ' + e.message);
+  })
+  .getItems();
+
+function renderCards(){
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = items.map(function(it){
+    return '<div class="card">'
+      + '<div class="icon-wrap"><img src="' + it.img + '" alt="" onerror="this.style.opacity=\'.3\'"></div>'
+      + '<h3>' + it.title + '</h3>'
+      + '<p>' + it.desc + '</p>'
+      + '<a href="' + it.link + '" target="_blank">' + it.btn + '</a>'
+      + '</div>';
+  }).join('');
+}
+
+function renderAdmin(){
+  var html = items.map(function(it, i){
+    return '<div class="admin-item">'
+      + '<img src="' + it.img + '" onerror="this.src=\'https://via.placeholder.com/40\'">'
+      + '<div class="info"><div class="name">' + it.title + '</div><div class="url">' + it.link + '</div></div>'
+      + '<div class="acts">'
+      + '<button class="act-btn" onclick="editItem(' + i + ')">✏ แก้ไข</button>'
+      + '<button class="act-btn del" onclick="delItem(' + i + ')">ลบ</button>'
+      + '</div></div>';
+  }).join('');
+  html += '<button class="add-new-btn" onclick="openAdd()">+ เพิ่มเมนูใหม่</button>';
+  document.getElementById('adminList').innerHTML = html;
+}
+
+function showPassModal(){
+  document.getElementById('passOverlay').classList.add('show');
+  document.getElementById('passInput').value = '';
+  document.getElementById('passErr').style.display = 'none';
+  setTimeout(function(){ document.getElementById('passInput').focus(); }, 100);
+}
+function closePassModal(){
+  document.getElementById('passOverlay').classList.remove('show');
+}
+function checkPass(){
+  var pass = document.getElementById('passInput').value;
+  google.script.run
+    .withSuccessHandler(function(ok){
+      if(ok){
+        _adminPass = pass;
+        closePassModal();
+        isAdmin = true;
+        document.getElementById('adminPanel').classList.add('show');
+        renderAdmin();
+      } else {
+        document.getElementById('passErr').style.display = 'block';
+        document.getElementById('passInput').value = '';
+      }
+    })
+    .verifyPassword(pass);
+}
+function closeAdmin(){
+  document.getElementById('adminPanel').classList.remove('show');
+  isAdmin = false;
+}
+
+function openAdd(){
+  editIdx = -1;
+  document.getElementById('editTitle').textContent = 'เพิ่มเมนูใหม่';
+  ['fTitle','fDesc','fImg','fLink','fBtn'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('imgPreview').src = '';
+  document.getElementById('editOverlay').classList.add('show');
+}
+function editItem(i){
+  editIdx = i;
+  var it = items[i];
+  document.getElementById('editTitle').textContent = 'แก้ไขเมนู';
+  document.getElementById('fTitle').value = it.title;
+  document.getElementById('fDesc').value = it.desc;
+  document.getElementById('fImg').value = it.img;
+  document.getElementById('fLink').value = it.link;
+  document.getElementById('fBtn').value = it.btn;
+  document.getElementById('imgPreview').src = it.img;
+  document.getElementById('editOverlay').classList.add('show');
+}
+function updatePreview(){
+  document.getElementById('imgPreview').src = document.getElementById('fImg').value;
+}
+function closeEditModal(){
+  document.getElementById('editOverlay').classList.remove('show');
+}
+function saveItem(){
+  var obj = {
+    title: document.getElementById('fTitle').value,
+    desc:  document.getElementById('fDesc').value,
+    img:   document.getElementById('fImg').value,
+    link:  document.getElementById('fLink').value,
+    btn:   document.getElementById('fBtn').value
+  };
+  if(!obj.title || !obj.link){ showToast('กรุณากรอกชื่อเมนูและลิงก์'); return; }
+  if(editIdx >= 0) items[editIdx] = obj; else items.push(obj);
+  closeEditModal();
+  saveToServer();
+}
+function delItem(i){
+  if(!confirm('ลบ "' + items[i].title + '" ?')) return;
+  items.splice(i, 1);
+  saveToServer();
+}
+function saveToServer(){
+  google.script.run
+    .withSuccessHandler(function(){
+      showToast('บันทึกสำเร็จ ✓');
+      renderCards();
+      renderAdmin();
+    })
+    .withFailureHandler(function(e){
+      showToast('บันทึกไม่สำเร็จ: ' + e.message);
+    })
+    .saveItems(_adminPass, items);
+}
+
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2800);
+}
+</script>
+</body>
+</html>
