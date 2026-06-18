@@ -360,6 +360,38 @@ body{background:#f0f2f5;min-height:100vh;}
 <div class="toast" id="toast"></div>
 
 <script>
+// --- โค้ดจำลองระบบ Google สำหรับรันบน GitHub Pages ---
+if (typeof google === 'undefined') {
+  window.google = {
+    script: {
+      run: {
+        withSuccessHandler: function(cb) { this.onSuccess = cb; return this; },
+        withFailureHandler: function(cb) { this.onFailure = cb; return this; },
+        getItems: function() {
+          // ดึงข้อมูลจากความจำบราวเซอร์ ถ้าไม่มีให้ใช้เมนูตัวอย่าง
+          let localData = JSON.parse(localStorage.getItem('novasol_data')) || [
+            { title: "ระบบงานที่ 1", desc: "รายละเอียดระบบงานที่ 1", img: "https://i.postimg.cc/FHGkmGKB/NOVASOL-1/logo.png", link: "https://google.com", btn: "เข้าใช้งาน" },
+            { title: "ระบบงานที่ 2", desc: "รายละเอียดระบบงานที่ 2", img: "https://i.postimg.cc/FHGkmGKB/NOVASOL-1/logo.png", link: "https://google.com", btn: "เข้าใช้งาน" }
+          ];
+          if (this.onSuccess) this.onSuccess(localData);
+        },
+        verifyPassword: function(pass) {
+          // ตั้งรหัสผ่านสำหรับเข้า Admin บน GitHub (ในที่นี้ตั้งไว้ว่า 1234)
+          if (this.onSuccess) this.onSuccess(pass === '1234');
+        },
+        saveItems: function(pass, currentItems) {
+          // บันทึกข้อมูลลงบราวเซอร์
+          localStorage.setItem('novasol_data', JSON.stringify(currentItems));
+          if (this.onSuccess) this.onSuccess();
+        }
+      }
+    }
+  };
+}
+// ----------------------------------------------------
+
+let items = []; // โค้ดเดิมของคุณ...
+let editIdx = -1;
 let items = [];
 let editIdx = -1;
 let isAdmin = false;
